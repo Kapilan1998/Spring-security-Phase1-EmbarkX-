@@ -9,6 +9,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+
 @Configuration      // tells spring provides application context to this class
 @EnableWebSecurity      // enable web security to access in this application
 public class SecurityConfig {
