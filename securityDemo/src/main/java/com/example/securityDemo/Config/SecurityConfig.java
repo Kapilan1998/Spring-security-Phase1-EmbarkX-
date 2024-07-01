@@ -3,6 +3,7 @@ package com.example.securityDemo.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,6 +18,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration      // tells spring provides application context to this class
 @EnableWebSecurity      // enable web security to access in this application
+@EnableMethodSecurity       //enables method-level security to this application.
 public class SecurityConfig {
     @Bean
         // mark as spring bean
