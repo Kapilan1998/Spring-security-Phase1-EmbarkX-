@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +25,8 @@ public class SecurityConfig {
     @Bean
         // mark as spring bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
+        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/amuku-dumuku/**").permitAll()
+                .anyRequest().authenticated());
         //Spring Security does not create or use HTTP sessions for storing authentication details
         // beneficial for scalable and secure RESTful APIs where each request is authenticated independently without relying on server-side session storage.
         // so session id won't show
@@ -31,6 +34,9 @@ public class SecurityConfig {
                 -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 //        http.formLogin(withDefaults());       // this is form based authentication(default)
         http.httpBasic(withDefaults());     // this is pop up based authentication(basic authentication)
+        http.headers(headers ->
+                headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+        http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 
