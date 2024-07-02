@@ -25,17 +25,23 @@ public class SecurityConfig {
     @Bean
         // mark as spring bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/amuku-dumuku/**").permitAll()
+        http.authorizeHttpRequests((requests) -> requests
+                // Allow all requests to the H2 console without authentication
+                .requestMatchers("/h2-console/**").permitAll()
+                // Require authentication for any other requests
                 .anyRequest().authenticated());
         //Spring Security does not create or use HTTP sessions for storing authentication details
-        // beneficial for scalable and secure RESTful APIs where each request is authenticated independently without relying on server-side session storage.
+        // Configure session management, beneficial for scalable and secure RESTful APIs where each request is authenticated independently without relying on server-side session storage.
         // so session id won't show
         http.sessionManagement(session
                 -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 //        http.formLogin(withDefaults());       // this is form based authentication(default)
         http.httpBasic(withDefaults());     // this is pop up based authentication(basic authentication)
-        http.headers(headers ->
-                headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+        // Allow the H2 console to be accessed within the same origin , all frames will be enabled
+        http.headers(headers -> headers
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+
+        // Disable CSRF protection (be cautious with this in production)
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
