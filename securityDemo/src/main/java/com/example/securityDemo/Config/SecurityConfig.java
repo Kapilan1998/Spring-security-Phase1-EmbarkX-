@@ -30,7 +30,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     @Autowired
-    DataSource dataSource;
+    DataSource dataSource;          // used for authentication and authorization.
     @Bean
         // mark as spring bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -61,7 +61,7 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails user1 = User.withUsername("user1")
-                .password(passwordEncoder().encode("password1"))
+                .password(passwordEncoder().encode("password1"))            // here password will be encoded and saved to the database using BCrypt(contains salting) also
                 .roles("USER")
                 .build();
 
@@ -79,13 +79,13 @@ public class SecurityConfig {
 
         // but here a new record will be created to the database
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
-        jdbcUserDetailsManager.createUser(user1);
+        jdbcUserDetailsManager.createUser(user1);           // creating new user
         jdbcUserDetailsManager.createUser(admin1);
         return jdbcUserDetailsManager;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder();     // in spring security BCrypt is commonly used
     }
 }
