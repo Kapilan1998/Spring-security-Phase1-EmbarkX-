@@ -77,7 +77,7 @@ public class SecurityConfig {
 
 
 
-        // but here a new record will be created to the database
+        // but here a new record will be created to the  H2 database using JdbcUserDetailsManager class
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
         jdbcUserDetailsManager.createUser(user1);           // creating new user
         jdbcUserDetailsManager.createUser(admin1);
