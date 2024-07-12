@@ -16,6 +16,14 @@ import java.util.Map;
 
 @Component
 @Slf4j
+/**
+ * The AuthEntryPointJwt class handles unauthorized access attempts by implementing the AuthenticationEntryPoint interface. When an unauthorized request is made, the commence method:
+ *
+ *     Logs details about the authentication exception.
+ *     Sets the response content type to JSON and the status to 401 Unauthorized.
+ *     Constructs a JSON response body with details about the error, including status, error message, and the path of the request.
+ *     Writes the JSON response body to the output stream, which is sent back to the client.
+ * **/
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
     @Override
@@ -23,8 +31,8 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
         log.info("authException details "+ authException);
         log.info("Unauthorized error "+ authException.getMessage());
 
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);  //response body will be in JSON format.
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);    //Sets the HTTP status code of the response to 401 Unauthorized
 
         final Map<String,Object> body = new HashMap<>();
         body.put("status",HttpServletResponse.SC_UNAUTHORIZED);
@@ -33,6 +41,7 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
         body.put("path",request.getServletPath());
 
         final ObjectMapper mapper = new ObjectMapper();
+        //Writes the body map as a JSON object to the response's output stream, thereby sending the JSON response to the client.
         mapper.writeValue(response.getOutputStream(),body);
 
     }
