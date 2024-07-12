@@ -62,12 +62,12 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    private boolean validateJwtToken(String authToken) {
+    public boolean validateJwtToken(String authToken) {
         try {
-            log.info("Validate ");
+            log.info("Validate token ");
             Jwts.parser().verifyWith((SecretKey) key())
                     .build()
-                    .parseSignedClaims(authToken);
+                    .parseSignedClaims(authToken);      //Parses the signed claims (the payload) from the JWT token.
             return true;
         } catch (MalformedJwtException malformedJwtException) {
             log.info("Invalid JWT token as MalformedJwtException " + malformedJwtException.getMessage());
