@@ -66,6 +66,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             log.info("exception is " + e);
         }
         // Continues the filter chain, allowing the request to proceed.
+        //continue filter chain as usual(because this is custom filter, so move to inbuilt filter)
         filterChain.doFilter(request, response);
     }
 
