@@ -1,9 +1,13 @@
 package com.example.securityDemo.Config;
 
+import com.example.securityDemo.jwt.AuthTokenFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,7 +21,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.sql.DataSource;
 
@@ -31,12 +37,23 @@ public class SecurityConfig {
 
     @Autowired
     DataSource dataSource;          // used for authentication and authorization.
+
+    @Autowired
+    AuthenticationEntryPoint unauthorizedHandler;
+
+    @Bean
+    public AuthTokenFilter authenticationJwtTokenFilter() {
+        return new AuthTokenFilter();
+    }
+
+
     @Bean
         // mark as spring bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((requests) -> requests
                 // Allow all requests to the H2 console without authentication
                 .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/api/v1/sign-in").permitAll()
                 // Require authentication for any other requests
                 .anyRequest().authenticated());
         //Spring Security does not create or use HTTP sessions for storing authentication details
@@ -44,6 +61,7 @@ public class SecurityConfig {
         // so session id won't show
         http.sessionManagement(session
                 -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
 //        http.formLogin(withDefaults());       // this is form based authentication(default)
         http.httpBasic(withDefaults());     // this is pop up based authentication(basic authentication)
         // Allow the H2 console to be accessed within the same origin , all frames will be enabled
@@ -52,9 +70,9 @@ public class SecurityConfig {
 
         // Disable CSRF protection (be cautious with this in production)
         http.csrf(AbstractHttpConfigurer::disable);
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
 
 
     //in memory authentication as storing user details in the memory
@@ -76,7 +94,6 @@ public class SecurityConfig {
 //        return new InMemoryUserDetailsManager(user1,admin1);
 
 
-
         // but here a new record will be created to the  H2 database using JdbcUserDetailsManager class
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
         jdbcUserDetailsManager.createUser(user1);           // creating new user
@@ -85,7 +102,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public UserDetailsService userDetailsService(Dat)
+    @Bean
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();     // in spring security BCrypt is commonly used
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration builder) throws Exception {
+        return builder.getAuthenticationManager();
     }
 }
