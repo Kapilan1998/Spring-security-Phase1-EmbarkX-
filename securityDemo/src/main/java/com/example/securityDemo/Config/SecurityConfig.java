@@ -92,7 +92,7 @@ public class SecurityConfig {
         // InMemoryUserDetailsManager needs object of type 'UserDetails' as arguments
         // we can pass any number of objects as arguments
 //        return new InMemoryUserDetailsManager(user1,admin1);
-
+ 
 
         // but here a new record will be created to the  H2 database using JdbcUserDetailsManager class
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
