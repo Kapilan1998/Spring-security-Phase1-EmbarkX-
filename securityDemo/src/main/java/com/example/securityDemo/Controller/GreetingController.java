@@ -54,15 +54,17 @@ public class GreetingController {
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequestDto loginRequestDto){
         Authentication authentication;
         try {
+            //to authenticate the user with the username and password by creating a UsernamePasswordAuthenticationToken.
             authentication = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUserName(),loginRequestDto.getPassword()));
         }catch (AuthenticationException exception){
             Map<String,Object> map = new HashMap<>();
-            map.put("message","Bad");
+            map.put("message","Invalid credentials");
                     map.put("status",false);
                     return new ResponseEntity<Object>(map, HttpStatus.NOT_FOUND);
         }
 
+        //essential for Spring Security to recognize the authenticated user in subsequent requests.
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
