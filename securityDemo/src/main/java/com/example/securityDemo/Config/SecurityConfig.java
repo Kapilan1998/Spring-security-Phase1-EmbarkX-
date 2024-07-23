@@ -3,6 +3,7 @@ package com.example.securityDemo.Config;
 import com.example.securityDemo.jwt.AuthTokenFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -76,33 +77,56 @@ public class SecurityConfig {
 
 
     //in memory authentication as storing user details in the memory
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        UserDetails user1 = User.withUsername("user1")
+//                .password(passwordEncoder().encode("password1"))            // here password will be encoded and saved to the database using BCrypt(contains salting) also
+//                .roles("USER")
+//                .build();
+//
+//        UserDetails admin1 = User.withUsername("admin")
+//                .password(passwordEncoder().encode("adminPassword"))
+//                .roles("ADMIN")
+//                .build();
+//
+//        // test using in memory data( no need for database), here these user1, admin1 account won't be created in database
+//        // InMemoryUserDetailsManager needs object of type 'UserDetails' as arguments
+//        // we can pass any number of objects as arguments
+////        return new InMemoryUserDetailsManager(user1,admin1);
+//
+//
+//        // but here a new record will be created to the  H2 database using JdbcUserDetailsManager class
+//        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
+//        jdbcUserDetailsManager.createUser(user1);           // creating new user
+//        jdbcUserDetailsManager.createUser(admin1);
+//        return jdbcUserDetailsManager;
+//    }
+
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user1 = User.withUsername("user1")
-                .password(passwordEncoder().encode("password1"))            // here password will be encoded and saved to the database using BCrypt(contains salting) also
-                .roles("USER")
-                .build();
-
-        UserDetails admin1 = User.withUsername("admin")
-                .password(passwordEncoder().encode("adminPassword"))
-                .roles("ADMIN")
-                .build();
-
-        // test using in memory data( no need for database), here these user1, admin1 account won't be created in database
-        // InMemoryUserDetailsManager needs object of type 'UserDetails' as arguments
-        // we can pass any number of objects as arguments
-//        return new InMemoryUserDetailsManager(user1,admin1);
- 
-
-        // but here a new record will be created to the  H2 database using JdbcUserDetailsManager class
-        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
-        jdbcUserDetailsManager.createUser(user1);           // creating new user
-        jdbcUserDetailsManager.createUser(admin1);
-        return jdbcUserDetailsManager;
+    public UserDetailsService userDetailsService(DataSource dataSource){
+        return new JdbcUserDetailsManager(dataSource);
     }
 
     @Bean
-    public UserDetailsService userDetailsService(Dat)
+    public CommandLineRunner initData(UserDetailsService userDetailsService){
+        return args -> {
+            JdbcUserDetailsManager manager = (JdbcUserDetailsManager) userDetailsService;
+            UserDetails user1 = User.withUsername("user1")
+                    .password(passwordEncoder().encode("password1"))            // here password will be encoded and saved to the database using BCrypt(contains salting) also
+                    .roles("USER")
+                    .build();
+
+            UserDetails admin1 = User.withUsername("admin")
+                    .password(passwordEncoder().encode("adminPassword"))
+                    .roles("ADMIN")
+                    .build();
+
+            JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
+            jdbcUserDetailsManager.createUser(user1);           // creating new user
+            jdbcUserDetailsManager.createUser(admin1);
+//            return jdbcUserDetailsManager;
+        };
+    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();     // in spring security BCrypt is commonly used
